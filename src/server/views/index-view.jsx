@@ -3,35 +3,10 @@
 //
 
 import ReduxRouterEngine from "electrode-redux-router-engine";
-// import { routes } from "../../client/routes-m";
-import { mobile, desktop} from "../../client/routes";
-// import { routes as DRoutes } from "../../client/routes-d";
+import { routes as MRoutes } from "../../client/routes-m";
+import { routes as DRoutes } from "../../client/routes-d";
 import rootReducer from '../../client/reducers';
 import { inputName } from "../../client/actions";
-
-//
-// This function is exported as the content for the webapp plugin.
-//
-// See config/default.json under plugins.webapp on specifying the content.
-//
-// When the Web server hits the routes handler installed by the webapp plugin, it
-// will call this function to retrieve the content for SSR if it's enabled.
-//
-//
-
-function createReduxStore(req, match) {
-  // this refs to engine
-  console.log({req, match})
-  const store = configureStore();
-
-  return Promise.all([
-    // store.dispatch();
-    store.dispatch(inputName('abc'))
-    // dispatch any other asynchronous actions here
-  ]).then( () => {
-    return store;
-  });
-}
 
 const configureStore = initialState => {
   const store = createStore(rootReducer, initialState);
@@ -62,17 +37,14 @@ module.exports = req => {
   let routeType;
   let dtype = getDeviceType(req.headers);
   if(dtype === 'mobile') {
-    routeType = mobile;
+    routeType = MRoutes;
   } else {
-    routeType = desktop;
+    routeType = DRoutes;
   }
 
 
   if (!routesEngine) {
     routesEngine = new ReduxRouterEngine({ routes: routeType, withIds: true });
-    routesEngine.render(req).then(result => {
-      console.log({result})
-    })
   }
 
   return routesEngine.render(req);
