@@ -21,30 +21,33 @@ const configureStore = initialState => {
 };
 
 let routesEngine;
+let desktopEngine;
+let mobileEngine;
 
 const getDeviceType = (header) => {
-	if(header['user-agent'].match(/mobile/i)) {
-		return 'mobile';
-	} else if (header['user-agent'].match(/iPad|Android|Touch/i)) {
-		return 'mobile';
-	} else {
-		return 'desktop';
-	}
+  if (header['user-agent'].match(/mobile/i)) {
+    return 'mobile';
+  } else if (header['user-agent'].match(/iPad|Android|Touch/i)) {
+    return 'mobile';
+  } else {
+    return 'desktop';
+  }
 }
 
 module.exports = req => {
 
   let routeType;
   let dtype = getDeviceType(req.headers);
-  if(dtype === 'mobile') {
-    routeType = MRoutes;
+  if (dtype === 'mobile') {
+    if (!mobileEngine) {
+      mobileEngine = new ReduxRouterEngine({ routes: MRoutes, withIds: true });
+    }
+    routesEngine = mobileEngine;
   } else {
-    routeType = DRoutes;
-  }
-
-
-  if (!routesEngine) {
-    routesEngine = new ReduxRouterEngine({ routes: routeType, withIds: true });
+    if (!desktopEngine) {
+      desktopEngine = new ReduxRouterEngine({ routes: DRoutes, withIds: true });
+    }
+    routesEngine = desktopEngine;
   }
 
   return routesEngine.render(req);
